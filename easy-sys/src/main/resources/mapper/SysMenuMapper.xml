@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fantasy.easy.sys.menu.mapper.SysMenuMapper">
+    <select id="queryListParentId" resultType="com.fantasy.easy.core.entity.SysMenuEntity">
+        select * from sys_menu where parent_id = #{parentId} order by order_num asc
+    </select>
+    <select id="queryNotButtonList" resultType="com.fantasy.easy.core.entity.SysMenuEntity">
+        select * from sys_menu where type != 2 order by order_num asc
+    </select>
+    <select id="selectList" resultType="com.fantasy.easy.core.entity.SysMenuEntity">
+        select * from sys_menu
+    </select>
+
+	<select id="queryMenuByRoleId" resultType="com.fantasy.easy.core.entity.SysMenuEntity">
+		SELECT
+		*
+		FROM
+		sys_menu menu
+		WHERE
+		menu.menu_id IN (
+		SELECT
+		menu_id
+		FROM
+		sys_role_menu rm
+		WHERE
+		rm.role_id = #{roleId}
+
+		)
+		order by menu_order
+
+	</select>
+
+    <select id="queryMenuByUserId" resultType="com.fantasy.easy.core.entity.SysMenuEntity">
+        SELECT
+			*
+		FROM
+			sys_menu menu
+		WHERE
+			menu.menu_id IN (
+				SELECT
+					menu_id
+				FROM
+					sys_role_menu rm
+				WHERE
+					rm.role_id IN (
+						SELECT
+							role_id
+						FROM
+							sys_user_role ur
+						WHERE
+							ur.user_id = #{currentUserId} 
+					)
+				union all 
+			SELECT
+					menu_id
+				FROM
+					sys_menu rm1
+				WHERE
+					rm1.menu_auth is null or rm1.menu_auth = ''
+					
+			)
+			order by menu_order
+    </select>
+    
+    <select id="queryMenuNoAuth"  resultType="com.fantasy.easy.core.entity.SysMenuEntity">
+		SELECT
+			*
+			FROM
+				sys_menu 
+			WHERE
+				menu_auth is null or menu_auth = ''
+			order by menu_order
+    </select>
+</mapper>
